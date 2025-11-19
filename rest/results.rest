@@ -1,0 +1,226 @@
+### Variables
+@baseUrl = http://localhost:5001
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzU3NzM2NywiZXhwIjoxNzYzNjYzNzY3fQ.XeahRqzoSxehIixXdAoPi06tvP5oXU9ylRRQ1I107nM
+
+### Health Check
+GET {{baseUrl}}
+
+### ========================================
+### RESULT MANAGEMENT
+### ========================================
+
+### Get all results
+GET {{baseUrl}}/api/results
+
+### Get result by ID
+GET {{baseUrl}}/api/results/1
+
+### Get results by cooperative ID
+GET {{baseUrl}}/api/results/cooperative/1
+
+### Create a new result (authenticated)
+POST {{baseUrl}}/api/results
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cooperativeId": 1,
+  "questions": [
+    {
+      "question": "Does the cooperative have a clear governance structure?",
+      "answer": "Yes",
+      "score": 10,
+      "category": "Governance"
+    },
+    {
+      "question": "Are financial records maintained properly?",
+      "answer": "Yes",
+      "score": 15,
+      "category": "Financial Management"
+    },
+    {
+      "question": "Does the cooperative provide training to members?",
+      "answer": "Partially",
+      "score": 7,
+      "category": "Member Development"
+    },
+    {
+      "question": "Is there active member participation in decision-making?",
+      "answer": "Yes",
+      "score": 12,
+      "category": "Governance"
+    },
+    {
+      "question": "Does the cooperative have a sustainability plan?",
+      "answer": "No",
+      "score": 0,
+      "category": "Sustainability"
+    }
+  ]
+}
+
+### Create result with comprehensive assessment
+POST {{baseUrl}}/api/results
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cooperativeId": 2,
+  "questions": [
+    {
+      "question": "Board meetings held regularly?",
+      "answer": "Yes",
+      "score": 8,
+      "category": "Governance"
+    },
+    {
+      "question": "Annual audit completed?",
+      "answer": "Yes",
+      "score": 10,
+      "category": "Financial Management"
+    },
+    {
+      "question": "Member satisfaction rate?",
+      "answer": "High",
+      "score": 9,
+      "category": "Member Relations"
+    },
+    {
+      "question": "Community impact assessment?",
+      "answer": "Positive",
+      "score": 8,
+      "category": "Social Impact"
+    },
+    {
+      "question": "Environmental practices implemented?",
+      "answer": "Partially",
+      "score": 5,
+      "category": "Sustainability"
+    },
+    {
+      "question": "Technology adoption level?",
+      "answer": "Moderate",
+      "score": 6,
+      "category": "Innovation"
+    }
+  ]
+}
+
+### Update result
+PUT {{baseUrl}}/api/results/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "questions": [
+    {
+      "question": "Does the cooperative have a clear governance structure?",
+      "answer": "Yes",
+      "score": 12,
+      "category": "Governance"
+    },
+    {
+      "question": "Are financial records maintained properly?",
+      "answer": "Yes",
+      "score": 18,
+      "category": "Financial Management"
+    },
+    {
+      "question": "Does the cooperative provide training to members?",
+      "answer": "Yes",
+      "score": 10,
+      "category": "Member Development"
+    },
+    {
+      "question": "Is there active member participation in decision-making?",
+      "answer": "Yes",
+      "score": 15,
+      "category": "Governance"
+    },
+    {
+      "question": "Does the cooperative have a sustainability plan?",
+      "answer": "Yes",
+      "score": 10,
+      "category": "Sustainability"
+    }
+  ]
+}
+
+### Delete result (Admin only)
+DELETE {{baseUrl}}/api/results/2
+Authorization: Bearer {{token}}
+
+### ========================================
+### ERROR CASES
+### ========================================
+
+### Create result without authentication
+POST {{baseUrl}}/api/results
+Content-Type: application/json
+
+{
+  "cooperativeId": 1,
+  "questions": []
+}
+
+### Create result with invalid cooperative ID
+POST {{baseUrl}}/api/results
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cooperativeId": 9999,
+  "questions": [
+    {
+      "question": "Test question",
+      "answer": "Test answer",
+      "score": 10,
+      "category": "Test"
+    }
+  ]
+}
+
+### Create result with empty questions array
+POST {{baseUrl}}/api/results
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cooperativeId": 1,
+  "questions": []
+}
+
+### Create result with invalid question format
+POST {{baseUrl}}/api/results
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "cooperativeId": 1,
+  "questions": [
+    {
+      "question": "Missing fields",
+      "answer": "Yes"
+    }
+  ]
+}
+
+### Get non-existent result
+GET {{baseUrl}}/api/results/9999
+
+### Update non-existent result
+PUT {{baseUrl}}/api/results/9999
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "questions": [
+    {
+      "question": "Test",
+      "answer": "Test",
+      "score": 5,
+      "category": "Test"
+    }
+  ]
+}
+

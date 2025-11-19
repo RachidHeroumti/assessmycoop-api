@@ -8,6 +8,7 @@ A REST API for cooperative assessment and management built with Node.js, Express
 - 👥 User management (registration, login, CRUD operations)
 - 🏢 Cooperative management (CRUD operations)
 - 📊 Cooperative scoring/assessment system
+- 📝 Results management with question-based assessments
 - 🔒 Role-based access control (admin/user)
 - 🛡️ Secure password hashing with bcrypt
 
@@ -20,22 +21,26 @@ A REST API for cooperative assessment and management built with Node.js, Express
 ## Installation
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd assessmycoop-api
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env` file based on `.env.example`:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Update the `.env` file with your database credentials:
+
 ```env
 PORT=3000
 NODE_ENV=development
@@ -49,6 +54,7 @@ JWT_SECRET=your_super_secret_jwt_key
 ```
 
 5. Create the MySQL database:
+
 ```sql
 CREATE DATABASE assessmycoop_db;
 ```
@@ -56,11 +62,13 @@ CREATE DATABASE assessmycoop_db;
 ## Running the Application
 
 ### Development mode (with auto-reload):
+
 ```bash
 npm run dev
 ```
 
 ### Production mode:
+
 ```bash
 npm start
 ```
@@ -70,9 +78,11 @@ The server will start on `http://localhost:3000`
 ## API Endpoints
 
 ### Health Check
+
 - `GET /` - API health check
 
 ### User Routes
+
 - `POST /api/users/register` - Register a new user
 - `POST /api/users/login` - Login user
 - `GET /api/users` - Get all users (admin only)
@@ -81,6 +91,7 @@ The server will start on `http://localhost:3000`
 - `DELETE /api/users/:id` - Delete user (admin only)
 
 ### Cooperative Routes
+
 - `GET /api/cooperatives` - Get all cooperatives
 - `GET /api/cooperatives/:id` - Get cooperative by ID
 - `GET /api/cooperatives/search` - Search cooperatives by score range
@@ -89,13 +100,25 @@ The server will start on `http://localhost:3000`
 - `PATCH /api/cooperatives/:id/score` - Update cooperative score (authenticated)
 - `DELETE /api/cooperatives/:id` - Delete cooperative (admin only)
 
+### Result Routes
+
+- `GET /api/results` - Get all results
+- `GET /api/results/:id` - Get result by ID
+- `GET /api/results/cooperative/:cooperativeId` - Get results by cooperative ID
+- `POST /api/results` - Create result with assessment questions (authenticated)
+- `PUT /api/results/:id` - Update result (authenticated)
+- `DELETE /api/results/:id` - Delete result (admin only)
+
 ## Testing with REST Client
 
 REST client files are provided in the `rest/` directory:
+
 - `rest/users.rest` - User endpoint tests
 - `rest/cooperative.rest` - Cooperative endpoint tests
+- `rest/results.rest` - Result endpoint tests
 
 To use these files:
+
 1. Install the REST Client extension in VS Code
 2. Open the `.rest` files
 3. Update the `@token` variable with your JWT token after login
@@ -116,10 +139,14 @@ assessmycoop-api/
 │   │   │   ├── user.model.js
 │   │   │   ├── user.controller.js
 │   │   │   └── user.routes.js
-│   │   └── cooperative/
-│   │       ├── cooperative.model.js
-│   │       ├── cooperative.controller.js
-│   │       └── cooperative.routes.js
+│   │   ├── cooperative/
+│   │   │   ├── cooperative.model.js
+│   │   │   ├── cooperative.controller.js
+│   │   │   └── cooperative.routes.js
+│   │   └── results/
+│   │       ├── result.model.js
+│   │       ├── result.controller.js
+│   │       └── result.routes.js
 │   └── app.js                 # Main application file
 ├── rest/                      # REST client test files
 ├── .env.example              # Environment variables template
@@ -134,6 +161,7 @@ The API uses JWT (JSON Web Tokens) for authentication. To access protected route
 1. Register a user or login
 2. Copy the token from the response
 3. Include it in the Authorization header:
+
 ```
 Authorization: Bearer YOUR_TOKEN_HERE
 ```
@@ -146,4 +174,3 @@ Authorization: Bearer YOUR_TOKEN_HERE
 ## License
 
 ISC
-

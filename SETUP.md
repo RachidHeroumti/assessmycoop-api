@@ -35,11 +35,13 @@ npm install
 ### 4. Start the Server
 
 Development mode (with auto-reload):
+
 ```bash
 npm run dev
 ```
 
 Production mode:
+
 ```bash
 npm start
 ```
@@ -57,15 +59,19 @@ The server will start on `http://localhost:3000`
 ### Testing Flow
 
 1. **Register an admin user** (rest/users.rest):
+
    - Use the "Register an admin user" request
    - Copy the response
 
 2. **Login** (rest/users.rest):
+
    - Use the "Login admin" request
    - Copy the `token` from the response
 
 3. **Update the token variable**:
+
    - In both `.rest` files, replace `YOUR_TOKEN_HERE` with your actual token
+
    ```
    @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ```
@@ -102,14 +108,19 @@ assessmycoop-api/
 │   │   │   ├── user.model.js        # User model
 │   │   │   ├── user.controller.js   # User business logic
 │   │   │   └── user.routes.js       # User endpoints
-│   │   └── cooperative/
-│   │       ├── cooperative.model.js
-│   │       ├── cooperative.controller.js
-│   │       └── cooperative.routes.js
+│   │   ├── cooperative/
+│   │   │   ├── cooperative.model.js
+│   │   │   ├── cooperative.controller.js
+│   │   │   └── cooperative.routes.js
+│   │   └── results/
+│   │       ├── result.model.js      # Result model with questions
+│   │       ├── result.controller.js # Assessment logic
+│   │       └── result.routes.js     # Result endpoints
 │   └── app.js                       # Main application
 ├── rest/
 │   ├── users.rest                   # User API tests
-│   └── cooperative.rest             # Cooperative API tests
+│   ├── cooperative.rest             # Cooperative API tests
+│   └── results.rest                 # Result API tests
 ├── .env                             # Environment variables (create this)
 ├── .env.example                     # Environment template
 ├── package.json
@@ -119,38 +130,49 @@ assessmycoop-api/
 ## Troubleshooting
 
 ### Database Connection Error
+
 - Ensure MySQL is running
 - Check database credentials in `.env`
 - Verify database exists: `SHOW DATABASES;`
 
 ### Authentication Error
+
 - Make sure you've logged in and copied the token
 - Token expires after 24 hours - login again if needed
 - Ensure token is in format: `Bearer YOUR_TOKEN`
 
 ### Port Already in Use
+
 - Change PORT in `.env` file
 - Or kill the process using port 3000
 
 ## API Endpoints Summary
 
 ### Public Endpoints
+
 - `GET /` - Health check
 - `POST /api/users/register` - Register user
 - `POST /api/users/login` - Login
 - `GET /api/cooperatives` - List cooperatives
 - `GET /api/cooperatives/:id` - Get cooperative
 - `GET /api/cooperatives/search` - Search by score
+- `GET /api/results` - List all results
+- `GET /api/results/:id` - Get result by ID
+- `GET /api/results/cooperative/:cooperativeId` - Get results by cooperative
 
 ### Protected Endpoints (Require Authentication)
+
 - `POST /api/cooperatives` - Create cooperative
 - `PUT /api/cooperatives/:id` - Update cooperative
 - `PATCH /api/cooperatives/:id/score` - Update score
+- `POST /api/results` - Create result with assessment
+- `PUT /api/results/:id` - Update result
 - `GET /api/users/:id` - Get user
 - `PUT /api/users/:id` - Update user
 
 ### Admin Only Endpoints
+
 - `GET /api/users` - List all users
 - `DELETE /api/users/:id` - Delete user
 - `DELETE /api/cooperatives/:id` - Delete cooperative
-
+- `DELETE /api/results/:id` - Delete result
