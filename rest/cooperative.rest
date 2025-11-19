@@ -1,0 +1,136 @@
+### Variables
+@baseUrl = http://localhost:5001
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzU3NzM2NywiZXhwIjoxNzYzNjYzNzY3fQ.XeahRqzoSxehIixXdAoPi06tvP5oXU9ylRRQ1I107nM
+
+
+### ========================================
+### COOPERATIVE MANAGEMENT (Public Routes)
+### ========================================
+
+### Get all cooperatives
+GET {{baseUrl}}/api/cooperatives
+
+### Get cooperative by ID
+GET {{baseUrl}}/api/cooperatives/1
+
+### Search cooperatives by score range
+GET {{baseUrl}}/api/cooperatives/search?minScore=50&maxScore=90
+
+### ========================================
+### COOPERATIVE MANAGEMENT (Protected Routes)
+### ========================================
+
+### Create a new cooperative
+POST {{baseUrl}}/api/cooperatives
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Green Valley Cooperative",
+  "address": "123 Main Street, Springfield",
+  "phone": "+1234567890",
+  "founded": "2020-01-15",
+  "founder": "Jane Smith",
+  "score": 75
+}
+
+### Create another cooperative
+POST {{baseUrl}}/api/cooperatives
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Sunrise Agricultural Coop",
+  "address": "456 Farm Road, Riverside",
+  "phone": "+0987654321",
+  "founded": "2018-06-20",
+  "founder": "Robert Johnson",
+  "score": 85
+}
+
+### Create cooperative with minimal data
+POST {{baseUrl}}/api/cooperatives
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Community Farmers Coop",
+  "address": "789 Rural Lane, Countryside",
+  "phone": "+1122334455",
+  "founded": "2022-03-10",
+  "founder": "Maria Garcia"
+}
+
+### Update cooperative
+PUT {{baseUrl}}/api/cooperatives/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Green Valley Cooperative (Updated)",
+  "address": "123 Main Street, Springfield, Updated",
+  "phone": "+1234567899",
+  "founded": "2020-01-15",
+  "founder": "Jane Smith",
+  "score": 80
+}
+
+### Update cooperative score (Assessment)
+PATCH {{baseUrl}}/api/cooperatives/1/score
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "score": 92
+}
+
+### Update score with validation error (score > 100)
+PATCH {{baseUrl}}/api/cooperatives/1/score
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "score": 150
+}
+
+### Delete cooperative (Admin only)
+DELETE {{baseUrl}}/api/cooperatives/3
+Authorization: Bearer {{token}}
+
+### ========================================
+### ERROR CASES
+### ========================================
+
+### Create cooperative without authentication
+POST {{baseUrl}}/api/cooperatives
+Content-Type: application/json
+
+{
+  "name": "Test Cooperative",
+  "address": "Test Address",
+  "phone": "+1111111111",
+  "founded": "2023-01-01",
+  "founder": "Test Founder"
+}
+
+### Get non-existent cooperative
+GET {{baseUrl}}/api/cooperatives/9999
+
+### Update non-existent cooperative
+PUT {{baseUrl}}/api/cooperatives/9999
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Non-existent Coop"
+}
+
+### Update score with invalid token
+PATCH {{baseUrl}}/api/cooperatives/1/score
+Authorization: Bearer INVALID_TOKEN
+Content-Type: application/json
+
+{
+  "score": 85
+}
+

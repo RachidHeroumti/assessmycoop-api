@@ -1,0 +1,112 @@
+### Variables
+@baseUrl = http://localhost:5001
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzU3NzM2NywiZXhwIjoxNzYzNjYzNzY3fQ.XeahRqzoSxehIixXdAoPi06tvP5oXU9ylRRQ1I107nM
+
+### Health Check
+GET {{baseUrl}}
+
+### ========================================
+### USER AUTHENTICATION
+### ========================================
+
+### Register a new user
+POST {{baseUrl}}/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "rachid",
+  "lastName": "dev",
+  "email": "dev@gmail.com",
+  "password": "test123",
+  "role": "user"
+}
+
+### Register an admin user
+POST {{baseUrl}}/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "Admin",
+  "lastName": "User",
+  "email": "admin@example.com",
+  "password": "admin123",
+  "role": "admin"
+}
+
+### Login user
+POST {{baseUrl}}/api/users/login
+Content-Type: application/json
+
+{
+   "email": "admin@example.com",
+  "password": "admin123"
+}
+
+### Login admin
+POST {{baseUrl}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+### ========================================
+### USER MANAGEMENT (Protected Routes)
+### ========================================
+
+### Get all users (Admin only)
+GET {{baseUrl}}/api/users
+Authorization: Bearer {{token}}
+
+### Get user by ID
+GET {{baseUrl}}/api/users/1
+Authorization: Bearer {{token}}
+
+### Update user
+PUT {{baseUrl}}/api/users/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "John Updated",
+  "lastName": "Doe Updated",
+  "email": "john.updated@example.com",
+  "role": "user"
+}
+
+### Delete user (Admin only)
+DELETE {{baseUrl}}/api/users/2
+Authorization: Bearer {{token}}
+
+### ========================================
+### ERROR CASES
+### ========================================
+
+### Login with invalid credentials
+POST {{baseUrl}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "wrong@example.com",
+  "password": "wrongpassword"
+}
+
+### Register with existing email
+POST {{baseUrl}}/api/users/register
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "email": "john.doe@example.com",
+  "password": "password123"
+}
+
+### Access protected route without token
+GET {{baseUrl}}/api/users
+
+### Access admin route with user token
+GET {{baseUrl}}/api/users
+Authorization: Bearer INVALID_TOKEN
+
