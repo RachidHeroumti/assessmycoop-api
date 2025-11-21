@@ -1,11 +1,7 @@
 ### Variables
 @baseUrl = http://localhost:5001
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzU3NzM2NywiZXhwIjoxNzYzNjYzNzY3fQ.XeahRqzoSxehIixXdAoPi06tvP5oXU9ylRRQ1I107nM
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzcyNjQzMiwiZXhwIjoxNzY2MzE4NDMyfQ.tWCcAJh3rmmQdTtqoAxuIClqCWmkO4qpsh9hXlTcIcI
 
-
-### ========================================
-### COOPERATIVE MANAGEMENT (Public Routes)
-### ========================================
 
 ### Get all cooperatives
 GET {{baseUrl}}/api/cooperatives

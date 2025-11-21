@@ -1,6 +1,8 @@
 ### Variables
 @baseUrl = http://localhost:5001
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzcyNjQzMiwiZXhwIjoxNzY2MzE4NDMyfQ.tWCcAJh3rmmQdTtqoAxuIClqCWmkO4qpsh9hXlTcIcI
+
+
 ### Health Check
 GET {{baseUrl}}
 
@@ -24,7 +26,18 @@ Content-Type: application/json
    "email": "admin@example.com",
   "password": "admin123"
 }
+### create user 
+POST {{baseUrl}}/api/users/create
+Authorization: Bearer {{token}}
+Content-Type: application/json
 
+{
+  "firstName": "tester",
+  "lastName": "test",
+  "email": "test@example.com",
+  "password": "test123",
+  "role": "user"
+}
 ### Get me
 GET {{baseUrl}}/api/users/me
 Authorization: Bearer {{token}}

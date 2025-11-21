@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "./user.model.js";
 import { generateToken } from "../../core/auth/jwt.js";
+
 export const register = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -81,8 +82,11 @@ export const login = async (req, res) => {
 
 export const createUserByAdmin = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, role } = req.body;
+    const { firstName, lastName, email, password="test123", role="user" } = req.body;
 
+    if(!firstName || !lastName || !email ) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
