@@ -1,27 +1,10 @@
 ### Variables
 @baseUrl = http://localhost:5001
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzU3NzM2NywiZXhwIjoxNzYzNjYzNzY3fQ.XeahRqzoSxehIixXdAoPi06tvP5oXU9ylRRQ1I107nM
-
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzcyNjQzMiwiZXhwIjoxNzY2MzE4NDMyfQ.tWCcAJh3rmmQdTtqoAxuIClqCWmkO4qpsh9hXlTcIcI
 ### Health Check
 GET {{baseUrl}}
 
-### ========================================
-### USER AUTHENTICATION
-### ========================================
-
 ### Register a new user
-POST {{baseUrl}}/api/users/register
-Content-Type: application/json
-
-{
-  "firstName": "rachid",
-  "lastName": "dev",
-  "email": "dev@gmail.com",
-  "password": "test123",
-  "role": "user"
-}
-
-### Register an admin user
 POST {{baseUrl}}/api/users/register
 Content-Type: application/json
 
@@ -42,18 +25,11 @@ Content-Type: application/json
   "password": "admin123"
 }
 
-### Login admin
-POST {{baseUrl}}/api/users/login
-Content-Type: application/json
+### Get me
+GET {{baseUrl}}/api/users/me
+Authorization: Bearer {{token}}
 
-{
-  "email": "admin@example.com",
-  "password": "admin123"
-}
 
-### ========================================
-### USER MANAGEMENT (Protected Routes)
-### ========================================
 
 ### Get all users (Admin only)
 GET {{baseUrl}}/api/users
