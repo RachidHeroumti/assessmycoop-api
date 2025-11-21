@@ -26,10 +26,32 @@ export const createCooperative = async (req, res) => {
 
 export const getAllCooperatives = async (req, res) => {
   try {
-    const cooperatives = await Cooperative.findAll({
+    // Get pagination parameters from query string
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // Use findAndCountAll for pagination
+    const { count, rows: cooperatives } = await Cooperative.findAndCountAll({
+      limit,
+      offset,
       order: [["createdAt", "DESC"]],
     });
-    res.json(cooperatives);
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      cooperatives,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: count,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
   } catch (error) {
     res
       .status(500)

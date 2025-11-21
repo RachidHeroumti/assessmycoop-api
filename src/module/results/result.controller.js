@@ -57,10 +57,32 @@ export const createResult = async (req, res) => {
 // Get all results
 export const getAllResults = async (req, res) => {
   try {
-    const results = await Result.findAll({
+    // Get pagination parameters from query string
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // Use findAndCountAll for pagination
+    const { count, rows: results } = await Result.findAndCountAll({
+      limit,
+      offset,
       order: [["createdAt", "DESC"]],
     });
-    res.json(results);
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(count / limit);
+
+    res.json({
+      results,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: count,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
   } catch (error) {
     res.status(500).json({
       message: "Error fetching results",

@@ -23,7 +23,7 @@ export const register = async (req, res) => {
 
     res.status(201).json({
       message: "User registered successfully",
-       status: 201,
+      status: 201,
       user: {
         id: user.id,
         firstName: user.firstName,
@@ -53,14 +53,14 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = generateToken({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    
-    },
+    const token = generateToken(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
       "30d"
-  );
+    );
 
     res.json({
       message: "Login successful",
@@ -118,10 +118,33 @@ export const createUserByAdmin = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll({
+    // Get pagination parameters from query string
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // Use findAndCountAll for pagination
+    const { count, rows: users } = await User.findAndCountAll({
       attributes: { exclude: ["password"] },
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]],
     });
-    res.status(200).json({users});
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(count / limit);
+
+    res.status(200).json({
+      users,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: count,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    });
   } catch (error) {
     res
       .status(500)
@@ -139,7 +162,7 @@ export const getUserById = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({user});
+    res.status(200).json({ user });
   } catch (error) {
     res
       .status(500)
@@ -147,7 +170,6 @@ export const getUserById = async (req, res) => {
   }
 };
 export const getMe = async (req, res) => {
-
   try {
     const user = await User.findByPk(req.user.id, {
       attributes: { exclude: ["password"] },
@@ -157,14 +179,13 @@ export const getMe = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({user});
+    res.status(200).json({ user });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Error fetching user", error: error.message });
   }
 };
-
 
 export const updateUser = async (req, res) => {
   try {
