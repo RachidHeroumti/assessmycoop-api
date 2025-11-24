@@ -1,2 +1,7 @@
 node_modules/
 .env
+/src/data
+
+ANALYTICS-DOCUMENTATION.md
+ANALYTICS-SUMMARY.md
+MIGRATION-SUMMARY.md

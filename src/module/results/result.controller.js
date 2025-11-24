@@ -1,50 +1,202 @@
 import { Result } from "./result.model.js";
 import Cooperative from "../cooperative/cooperative.model.js";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// Create a new result for a cooperative
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+const questionsData = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../../data/questions.json"), "utf-8")
+);
+
+
+const getCategoryFromQuestionId = (qid) => {
+  for (const categoryObj of questionsData.Questions) {
+    for (const [categoryName, questions] of Object.entries(categoryObj)) {
+      const question = questions.find((q) => q.id === qid);
+      if (question) {
+        return categoryName;
+      }
+    }
+  }
+  return null;
+};
+
+
+const calculateScoresByCategory = (answers) => {
+  const scoresByCategory = {};
+  const countsByCategory = {};
+
+  for (const answer of answers) {
+    const category = answer.category;
+    const value = parseInt(answer.value);
+
+    if (!scoresByCategory[category]) {
+      scoresByCategory[category] = 0;
+      countsByCategory[category] = 0;
+    }
+
+    scoresByCategory[category] += value;
+    countsByCategory[category] += 1;
+  }
+
+  
+  for (const category in scoresByCategory) {
+    scoresByCategory[category] =
+      scoresByCategory[category] / countsByCategory[category];
+  }
+
+  return scoresByCategory;
+};
+
+
+const getInterpretation = (score) => {
+  const scales = questionsData.Scales.GeneralInterpretation;
+
+  for (const scale of scales) {
+    const [min, max] = scale.range.split(" - ").map(parseFloat);
+    if (score >= min && score <= max) {
+      return scale.interpretation;
+    }
+  }
+
+  return "Score hors limites";
+};
+
+
+const generateRecommendations = (scoresByCategory) => {
+  const recommendations = [];
+  const axes = questionsData.Scales.Axes;
+
+  for (const [category, score] of Object.entries(scoresByCategory)) {
+    
+    let axisKey = null;
+    let axisData = null;
+
+    if (category.includes("Marketing")) {
+      axisKey = "Diagnostic Marketing";
+      axisData = axes["Diagnostic Marketing"];
+    } else if (category.includes("Opérationnel")) {
+      axisKey = "Diagnostic Opérationnel";
+      axisData = axes["Diagnostic Opérationnel"];
+    } else if (category.includes("Stratégique")) {
+      axisKey = "Diagnostic Stratégique";
+      axisData = axes["Diagnostic Stratégique"];
+    }
+
+    if (axisData) {
+      const interpretation = getInterpretation(score);
+
+      
+      if (axisData.recommendations) {
+        
+        if (score <= 2.5) {
+          recommendations.push(`${category}: ${axisData.recommendations[0]}`);
+        } else if (score <= 3.5) {
+          recommendations.push(`${category}: ${axisData.recommendations[1]}`);
+        } else {
+          recommendations.push(`${category}: ${axisData.recommendations[2]}`);
+        }
+      } else if (axisData.recommendations_summary) {
+        
+        const summaryRec = axisData.recommendations_summary.find((rec) =>
+          rec
+            .toLowerCase()
+            .includes(category.toLowerCase().split(" - ")[1] || "")
+        );
+        if (summaryRec) {
+          recommendations.push(`${category}: ${summaryRec}`);
+        }
+      }
+    }
+  }
+
+  return recommendations;
+};
+
+
 export const createResult = async (req, res) => {
   try {
-    const { cooperativeId, questions } = req.body;
+    const { cooperativeId, answers } = req.body;
 
-    // Validate cooperative exists
+    
     const cooperative = await Cooperative.findByPk(cooperativeId);
     if (!cooperative) {
       return res.status(404).json({ message: "Cooperative not found" });
     }
 
-    // Validate questions array
-    if (!Array.isArray(questions) || questions.length === 0) {
+    
+    if (!Array.isArray(answers) || answers.length === 0) {
       return res
         .status(400)
-        .json({ message: "Questions must be a non-empty array" });
+        .json({ message: "Answers must be a non-empty array" });
     }
 
-    // Validate each question has required fields
-    for (const q of questions) {
-      if (!q.question || !q.answer || q.score === undefined || !q.category) {
+    
+    const enrichedAnswers = [];
+    for (const answer of answers) {
+      if (!answer.qid || !answer.value) {
         return res.status(400).json({
-          message:
-            "Each question must have: question, answer, score, and category",
+          message: "Each answer must have: qid and value",
         });
       }
+
+      
+      let category = answer.category;
+      if (!category) {
+        category = getCategoryFromQuestionId(answer.qid);
+        if (!category) {
+          return res.status(400).json({
+            message: `Question ID ${answer.qid} not found in questions database`,
+          });
+        }
+      }
+
+      enrichedAnswers.push({
+        qid: answer.qid,
+        category: category,
+        value: parseInt(answer.value),
+      });
     }
 
-    // Calculate total score from questions
-    const totalScore = questions.reduce((sum, q) => sum + (q.score || 0), 0);
+    
+    const scoresByCategory = calculateScoresByCategory(enrichedAnswers);
 
-    // Create result
+    
+    const categoryScores = Object.values(scoresByCategory);
+    const overallScore =
+      categoryScores.reduce((sum, score) => sum + score, 0) /
+      categoryScores.length;
+
+    
+    const interpretation = getInterpretation(overallScore);
+
+    
+    const recommendations = generateRecommendations(scoresByCategory);
+
+    
     const result = await Result.create({
       cooperativeId,
-      questions,
+      answers: enrichedAnswers,
+      overallScore: parseFloat(overallScore.toFixed(2)),
+      scoresByCategory,
+      interpretation,
+      recommendations,
     });
 
-    // Update cooperative score
-    await cooperative.update({ score: totalScore });
+    
+    await cooperative.update({ score: Math.round(overallScore * 20) });
 
     res.status(201).json({
       message: "Result created successfully",
       result,
-      totalScore,
+      overallScore: parseFloat(overallScore.toFixed(2)),
+      scoresByCategory,
+      interpretation,
+      recommendations,
     });
   } catch (error) {
     res.status(500).json({
@@ -54,22 +206,22 @@ export const createResult = async (req, res) => {
   }
 };
 
-// Get all results
+
 export const getAllResults = async (req, res) => {
   try {
-    // Get pagination parameters from query string
+    
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    // Use findAndCountAll for pagination
+    
     const { count, rows: results } = await Result.findAndCountAll({
       limit,
       offset,
       order: [["createdAt", "DESC"]],
     });
 
-    // Calculate pagination metadata
+    
     const totalPages = Math.ceil(count / limit);
 
     res.json({
@@ -91,7 +243,7 @@ export const getAllResults = async (req, res) => {
   }
 };
 
-// Get result by ID
+
 export const getResultById = async (req, res) => {
   try {
     const result = await Result.findByPk(req.params.id);
@@ -109,7 +261,7 @@ export const getResultById = async (req, res) => {
   }
 };
 
-// Get results by cooperative ID
+
 export const getResultsByCooperativeId = async (req, res) => {
   try {
     const { cooperativeId } = req.params;
@@ -128,44 +280,79 @@ export const getResultsByCooperativeId = async (req, res) => {
   }
 };
 
-// Update result
+
 export const updateResult = async (req, res) => {
   try {
-    const { questions } = req.body;
+    const { answers } = req.body;
     const result = await Result.findByPk(req.params.id);
 
     if (!result) {
       return res.status(404).json({ message: "Result not found" });
     }
 
-    // Validate questions array if provided
-    if (questions) {
-      if (!Array.isArray(questions) || questions.length === 0) {
+    
+    if (answers) {
+      if (!Array.isArray(answers) || answers.length === 0) {
         return res
           .status(400)
-          .json({ message: "Questions must be a non-empty array" });
+          .json({ message: "Answers must be a non-empty array" });
       }
 
-      // Validate each question
-      for (const q of questions) {
-        if (!q.question || !q.answer || q.score === undefined || !q.category) {
+      
+      const enrichedAnswers = [];
+      for (const answer of answers) {
+        if (!answer.qid || !answer.value) {
           return res.status(400).json({
-            message:
-              "Each question must have: question, answer, score, and category",
+            message: "Each answer must have: qid and value",
           });
         }
+
+        
+        let category = answer.category;
+        if (!category) {
+          category = getCategoryFromQuestionId(answer.qid);
+          if (!category) {
+            return res.status(400).json({
+              message: `Question ID ${answer.qid} not found in questions database`,
+            });
+          }
+        }
+
+        enrichedAnswers.push({
+          qid: answer.qid,
+          category: category,
+          value: parseInt(answer.value),
+        });
       }
 
-      // Calculate new total score
-      const totalScore = questions.reduce((sum, q) => sum + (q.score || 0), 0);
+      
+      const scoresByCategory = calculateScoresByCategory(enrichedAnswers);
 
-      // Update result
-      await result.update({ questions });
+      
+      const categoryScores = Object.values(scoresByCategory);
+      const overallScore =
+        categoryScores.reduce((sum, score) => sum + score, 0) /
+        categoryScores.length;
 
-      // Update cooperative score
+      
+      const interpretation = getInterpretation(overallScore);
+
+      
+      const recommendations = generateRecommendations(scoresByCategory);
+
+      
+      await result.update({
+        answers: enrichedAnswers,
+        overallScore: parseFloat(overallScore.toFixed(2)),
+        scoresByCategory,
+        interpretation,
+        recommendations,
+      });
+
+      
       const cooperative = await Cooperative.findByPk(result.cooperativeId);
       if (cooperative) {
-        await cooperative.update({ score: totalScore });
+        await cooperative.update({ score: Math.round(overallScore * 20) });
       }
     }
 
@@ -181,7 +368,7 @@ export const updateResult = async (req, res) => {
   }
 };
 
-// Delete result
+
 export const deleteResult = async (req, res) => {
   try {
     const result = await Result.findByPk(req.params.id);
@@ -195,6 +382,18 @@ export const deleteResult = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error deleting result",
+      error: error.message,
+    });
+  }
+};
+
+
+export const getQuestions = async (req, res) => {
+  try {
+    res.json(questionsData);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching questions",
       error: error.message,
     });
   }

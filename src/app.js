@@ -6,6 +6,7 @@ import { connectDB, sequelize } from "./config/db.js";
 import userRoutes from "./module/users/user.routes.js";
 import cooperativeRoutes from "./module/cooperative/cooperative.routes.js";
 import resultRoutes from "./module/results/result.routes.js";
+import analyticsRoutes from "./module/analytics/analytics.routes.js";
 import { errorHandler, notFound } from "./middlwares/error.middleware.js";
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
       users: "/api/users",
       cooperatives: "/api/cooperatives",
       results: "/api/results",
+      analytics: "/api/analytics",
     },
   });
 });
@@ -33,6 +35,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/cooperatives", cooperativeRoutes);
 app.use("/api/results", resultRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

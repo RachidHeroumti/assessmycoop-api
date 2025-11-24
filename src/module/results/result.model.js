@@ -1,34 +1,7 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../../config/db.js";
 
-// Question model
-const Question = sequelize.define(
-  "Question",
-  {
-    question: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    answer: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    score: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    category: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    timestamps: true,
-    tableName: "questions",
-  }
-);
-
-// Result model with JSON array of questions
+// Result model (stores all answers for a cooperative)
 const Result = sequelize.define(
   "Result",
   {
@@ -37,14 +10,39 @@ const Result = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+
     cooperativeId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    questions: {
-      type: DataTypes.JSON, // <-- array of Question objects
+
+    // Array of answers [{ qid, category, value }]
+    answers: {
+      type: DataTypes.JSON,
       allowNull: false,
+      defaultValue: [],
     },
+
+    // optional computed fields
+    overallScore: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+
+    scoresByCategory: {
+      type: DataTypes.JSON, // { "Diagnostic Marketing Digital": 3.4, ... }
+      allowNull: true,
+    },
+
+    interpretation: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    recommendations: {
+      type: DataTypes.JSON, // array of strings
+      allowNull: true,
+    }
   },
   {
     timestamps: true,
@@ -52,4 +50,4 @@ const Result = sequelize.define(
   }
 );
 
-export { Question, Result };
+export { Result };

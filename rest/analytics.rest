@@ -1,0 +1,40 @@
+### Variables
+@baseUrl = http://localhost:5001
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MzcyNjQzMiwiZXhwIjoxNzY2MzE4NDMyfQ.tWCcAJh3rmmQdTtqoAxuIClqCWmkO4qpsh9hXlTcIcI
+
+========================================
+
+### Get comprehensive dashboard analytics
+# Returns: overview stats, recent activity, top performers, recent assessments, score distribution
+GET {{baseUrl}}/api/analytics/dashboard
+Authorization: Bearer {{token}}
+
+### Get overview statistics
+# Returns: total counts and recent 30-day activity for users, cooperatives, and results
+GET {{baseUrl}}/api/analytics/overview
+Authorization: Bearer {{token}}
+
+### Get user statistics
+# Returns: total users, users by role, user growth over 12 months
+GET {{baseUrl}}/api/analytics/users
+Authorization: Bearer {{token}}
+
+
+### Get cooperative statistics
+# Returns: total cooperatives, average score, score distribution, top performers, growth
+GET {{baseUrl}}/api/analytics/cooperatives
+Authorization: Bearer {{token}}
+
+
+
+GET {{baseUrl}}/api/analytics/results
+Authorization: Bearer {{token}}
+
+
+GET {{baseUrl}}/api/analytics/results/categories
+Authorization: Bearer {{token}}
+
+
+GET {{baseUrl}}/api/analytics/results/recommendations
+Authorization: Bearer {{token}}
+
